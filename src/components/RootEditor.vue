@@ -1,5 +1,5 @@
 <template>
-    <div class="editor">
+    <div class="editor" v-if="root !== null">
         <!-- <p>{{ filesStore.files.get(props.filename)?.find(r => r.root === props.root) }}</p> -->
         <v-text-field label="Root" hide-details="auto" v-model="root.root"></v-text-field>
         <v-text-field label="Refers" hide-details="auto" v-model="root.refers"></v-text-field>
@@ -33,40 +33,40 @@
             Delete This Root
         </v-btn>
     </div>
+    <p class="placeholder" v-else>Please select or create a root to edit.</p>
 </template>
 
 <script lang="ts" setup>
 import { useFilesStore } from '@/common/store';
-import { computed } from '@vue/reactivity';
-import { reactive, watch } from 'vue';
-import { Specs } from '@/common/typings';
+import { Ref, reactive, ref, watch } from 'vue';
+import { Root, Specs } from '@/common/typings';
 
 const props = defineProps<{
     filename: string,
-    rootStr: string
+    rootStr: string | undefined
 }>();
 
 const filesStore = useFilesStore();
 const stemsSingleLine = reactive([false, false, false]);
-
-const root = computed(() => {
-    const root = filesStore.files.get(props.filename)!.find(r => r.root === props.rootStr)!;
-    if (root.stems === undefined) root.stems = ['', '', ''];
-    return root;
-})
+const root: Ref<Root | null> = ref(null);
 
 watch(props, () => {
-    const stems = filesStore.files.get(props.filename)?.find(r => r.root === props.rootStr)?.stems;
-    if (stems === undefined) return;
-    stemsSingleLine[0] = typeof stems[0] === 'string';
-    stemsSingleLine[1] = typeof stems[1] === 'string';
-    stemsSingleLine[2] = typeof stems[2] === 'string';
-})
+    if (props.rootStr === undefined) {
+        return;
+    }
+    root.value = filesStore.files.get(props.filename)!.find(r => r.root === props.rootStr)!;
+    if (root.value!.stems === undefined) root.value!.stems = ['', '', ''];
+    stemsSingleLine[0] = typeof root.value!.stems[0] === 'string';
+    stemsSingleLine[1] = typeof root.value!.stems[1] === 'string';
+    stemsSingleLine[2] = typeof root.value!.stems[2] === 'string';
+}, { immediate: true })
 
 function deleteThisRoot() {
-    alert('Work In Progress')
+    const file = filesStore.files.get(props.filename)!;
+    const index = file.findIndex(r => r.root === props.rootStr);
+    file.splice(index, 1);
+    root.value = null;
 }
-
 </script>
 
 <style scoped>
@@ -82,5 +82,10 @@ function deleteThisRoot() {
 
 .delete-button {
     margin: 24px 0 0 0
+}
+
+.placeholder {
+    margin: 24px;
+    font-size: 24px;
 }
 </style>
