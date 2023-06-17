@@ -28,7 +28,7 @@
 
 <script setup lang="ts">
 import { useFilesStore } from '@/common/store';
-import { ref, watch } from 'vue';
+import { ref } from 'vue';
 import FileEditor from './FileEditor.vue'
 
 const filesStore = useFilesStore()
@@ -43,7 +43,17 @@ function createNewFile() {
 }
 
 function createNewRoot() {
-    alert('Work In Progress')
+    if (selectedTab.value === '') {
+        alert('No file is selected');
+        return;
+    }
+    const rootStr = prompt('Please input the "Root" name to create a new root:');
+    if (rootStr === null) return;
+    const file = filesStore.files.get(selectedTab.value)!;
+    if (file.find(r => r.root === rootStr) !== undefined) {
+        alert('Duplicated root name.');
+    }
+    file.push({ root: rootStr })
 }
 </script>
 
