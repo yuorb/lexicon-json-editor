@@ -25,6 +25,10 @@ function handleRootSelect(event: { id: unknown; value: boolean; path: unknown[] 
 </script>
 
 <style scoped>
+.v-list {
+    overflow-y: scroll;
+}
+
 .file-editor {
     display: grid;
     grid-template-columns: 160px auto;
