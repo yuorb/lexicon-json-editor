@@ -1,44 +1,12 @@
-# default
+# Lexicon JSON Editor
 
-## Project setup
+Download the json files of lexicon from https://github.com/yuorb/lexicon-json.
 
-```
-# yarn
-yarn
-
-# npm
-npm install
-
-# pnpm
-pnpm install
-```
-
-### Compiles and hot-reloads for development
+## Usage
 
 ```
-# yarn
-yarn dev
-
-# npm
-npm run dev
-
-# pnpm
-pnpm dev
-```
-
-### Compiles and minifies for production
-
-```
-# yarn
+yarn install --frozen-lockfile
 yarn build
-
-# npm
-npm run build
-
-# pnpm
-pnpm build
+yarn preview
 ```
 
-### Customize configuration
-
-See [Configuration Reference](https://vitejs.dev/config/).
