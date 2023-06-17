@@ -20,7 +20,7 @@
         </v-toolbar>
         <v-window v-model="selectedTab">
             <v-window-item v-for="filename in filesStore.files.keys()" :value="filename">
-                <FileEditor :filename="filename" ></FileEditor>
+                <FileEditor :filename="filename"></FileEditor>
             </v-window-item>
         </v-window>
     </v-main>
@@ -34,8 +34,27 @@ import FileEditor from './FileEditor.vue'
 const filesStore = useFilesStore()
 const selectedTab = ref('');
 
-function saveAllFiles() {
-    alert('Work In Progress')
+async function saveAllFiles() {
+    if (window.dirHandle === null) {
+        'Error: window.dirHandle is null';
+        return;
+    };
+    for await (const [filename, handle] of window.dirHandle.entries()) {
+        if (handle.kind === 'directory') {
+            alert('Unexpected directory. There should be only json files in the directory you selected.');
+            return false;
+        }
+        try {
+            const stream = await handle.createWritable();
+            const roots = filesStore.files.get(filename)!;
+            await stream.write(JSON.stringify(roots, null, 4));
+            await stream.close();
+        } catch (e) {
+            console.error(e)
+            return;
+        }
+    }
+    alert('All files saved')
 }
 
 function createNewFile() {

@@ -18,40 +18,44 @@ import { Root } from './common/typings';
 
 const directorySelected = ref(false);
 const filesStore = useFilesStore();
-
 async function handleButtonClick() {
-  const dirHandle = await getDirHandle();
-  if (!dirHandle) return;
-  const ok = await initFiles(dirHandle);
-  if (!ok) return;
+  const ok1 = await initDirHandle();
+  if (!ok1) return;
+  const ok2 = await initFiles();
+  if (!ok2) return;
   directorySelected.value = true;
 }
 
-async function getDirHandle(): Promise<FileSystemDirectoryHandle | null> {
-  let dirHandle: FileSystemDirectoryHandle;
+async function initDirHandle(): Promise<boolean> {
   try {
-    dirHandle = await window.showDirectoryPicker();
+    window.dirHandle = await window.showDirectoryPicker();
   } catch (e) {
     if (!(e instanceof Error)) {
       alert(`Unknown error type: ${e}`);
-      return null;
+      return false;
     }
-    if (e.message === 'The user aborted a request.') return null;
+    if (e.message === 'The user aborted a request.') return false;
     alert('Your browser does not support the File System Access API. Try to use the latest Chrome.');
-    return null;
+    return false;
   }
-  return dirHandle;
+  return true
 }
 
-async function initFiles(dirHandle: FileSystemDirectoryHandle): Promise<boolean> {
-  for await (const [_, handle] of dirHandle.entries()) {
+async function initFiles(): Promise<boolean> {
+  if (window.dirHandle === null) return false;
+  for await (const [_, handle] of window.dirHandle.entries()) {
     if (handle.kind === 'directory') {
       alert('Unexpected directory. There should be only json files in the directory you selected.');
       return false;
     }
     const file = await handle.getFile();
     const content = await readTextFile(file);
-    filesStore.files.set(file.name, JSON.parse(content) as Root[])
+    try {
+      filesStore.files.set(file.name, JSON.parse(content) as Root[])
+    } catch {
+      alert(`${file.name} cannot be parsed as JSON correctly.`);
+      return false;
+    }
   }
   return true;
 }
