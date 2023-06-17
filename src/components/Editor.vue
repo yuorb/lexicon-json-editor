@@ -39,7 +39,13 @@ function saveAllFiles() {
 }
 
 function createNewFile() {
-    alert('Work In Progress')
+    const filename = prompt('Please input the file name to create a new file (e.g. "1.0.json"):');
+    if (filename === null) return;
+    if (!/(\d\.)+\d\.json/.test(filename)) {
+        alert('Filename is invalid. It should look like "1.2.3.json"')
+        return;
+    }
+    filesStore.files.set(filename, []);
 }
 
 function createNewRoot() {
