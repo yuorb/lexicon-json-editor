@@ -34,10 +34,6 @@ import FileEditor from './FileEditor.vue'
 const filesStore = useFilesStore()
 const selectedTab = ref('');
 
-watch(selectedTab, () => {
-    console.log('tab', selectedTab.value)
-})
-
 function saveAllFiles() {
     alert('Work In Progress')
 }

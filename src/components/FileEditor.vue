@@ -2,7 +2,7 @@
     <div class="file-editor">
         <v-list :items="filesStore.files.get(props.filename)?.map(({ root }) => ({ title: `${root}`, value: root }))"
             @click:select="handleRootSelect"></v-list>
-        <RootEditor :filename="filename" :root="selectedRoot" v-if="selectedRoot !== ''"></RootEditor>
+        <RootEditor :filename="filename" :rootStr="selectedRoot" v-if="selectedRoot !== ''"></RootEditor>
         <p v-else>Please select or create a root to edit.</p>
     </div>
 </template>
