@@ -1,8 +1,9 @@
 import { defineStore } from 'pinia'
 import { Root } from './typings';
-import { reactive } from 'vue';
+import { reactive, ref } from 'vue';
 
 export const useFilesStore = defineStore('files', () => {
   const files: Map<string, Root[]> = reactive(new Map());
-  return { files }
+  const isWritingFiles = ref(false);
+  return { files, isWritingFiles }
 })

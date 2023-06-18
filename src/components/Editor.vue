@@ -3,7 +3,7 @@
         <v-toolbar>
             <v-toolbar-title>Lexicon JSON Editor</v-toolbar-title>
             <v-spacer></v-spacer>
-            <v-btn icon @click="saveAllFiles">
+            <v-btn icon @click="saveAllFiles" :disabled="filesStore.isWritingFiles">
                 <v-icon>mdi-content-save</v-icon>
             </v-btn>
             <v-btn icon @click="createNewFile">
@@ -24,21 +24,32 @@
             </v-window-item>
         </v-window>
     </v-main>
+    <v-snackbar v-model="isSnackBarVisible" :timeout="3000">
+        All files saved.
+        <template v-slot:actions>
+            <v-btn variant="text" @click="isSnackBarVisible = false">
+                Close
+            </v-btn>
+        </template>
+    </v-snackbar>
 </template>
 
 <script setup lang="ts">
 import { useFilesStore } from '@/common/store';
 import { ref } from 'vue';
 import FileEditor from './FileEditor.vue'
+import { trimJson } from '@/common/utils';
 
 const filesStore = useFilesStore()
 const selectedTab = ref('');
+const isSnackBarVisible = ref(false);
 
 async function saveAllFiles() {
     if (window.dirHandle === null) {
         'Error: window.dirHandle is null';
         return;
     };
+    filesStore.isWritingFiles = true;
     for await (const [filename, handle] of window.dirHandle.entries()) {
         if (handle.kind === 'directory') {
             alert('Unexpected directory. There should be only json files in the directory you selected.');
@@ -47,14 +58,16 @@ async function saveAllFiles() {
         try {
             const stream = await handle.createWritable();
             const roots = filesStore.files.get(filename)!;
-            await stream.write(JSON.stringify(roots, null, 4));
+            const trimmedRoots =  trimJson(roots)
+            await stream.write(JSON.stringify(trimmedRoots, null, 4));
             await stream.close();
         } catch (e) {
             console.error(e)
             return;
         }
     }
-    alert('All files saved')
+    isSnackBarVisible.value = true;
+    filesStore.isWritingFiles = false;
 }
 
 async function createNewFile() {
