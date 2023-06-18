@@ -57,13 +57,22 @@ async function saveAllFiles() {
     alert('All files saved')
 }
 
-function createNewFile() {
+async function createNewFile() {
     const filename = prompt('Please input the file name to create a new file (e.g. "1.0.json"):');
     if (filename === null) return;
     if (!/(\d\.)+\d\.json/.test(filename)) {
         alert('Filename is invalid. It should look like "1.2.3.json"')
         return;
     }
+    filesStore.files.set(filename, []);
+    if (window.dirHandle === null) {
+        'Error: window.dirHandle is null';
+        return;
+    };
+    const fileHandle = await window.dirHandle.getFileHandle(filename, { create: true });
+    const stream = await fileHandle.createWritable();
+    await stream.write('{}\n');
+    await stream.close();
     filesStore.files.set(filename, []);
 }
 
